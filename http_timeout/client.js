@@ -10,28 +10,30 @@ const opt = {
 };
 
 const req = http.request(opt, function(res) {
-    util.log(reqId, 'STATUS:', res.statusCode);
+    util.log(reqId, 'response STATUS =>', res.statusCode);
+
     res.setEncoding('utf8');
     let resultText = '';
+
     res.on('data', (chunk) => {
         resultText += chunk;
-        util.log(reqId, 'chunk', chunk);
+        util.log(reqId, 'response chunk =>', chunk);
     });
     res.on('end', () => {
-        util.log(reqId, ' end');
+        util.log(reqId, 'response end');
     });
 });
 
 req.on('timeout', function () {
-    util.log('req timeout ...', req.socket._idleTimeout);
+    util.log(reqId, 'timeout ...', req.socket._idleTimeout);
     req.abort();
 });
 
-req.setTimeout(5 * 1000);
+// req.setTimeout(5 * 1000);
 
 req.on('error', (e) => {
-    util.log(e);
+    util.log(reqId, 'error', e);
 });
 
-util.log("start request...")
+util.log("start request:", reqId, '...');
 req.end();

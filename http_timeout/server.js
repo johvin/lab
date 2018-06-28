@@ -12,7 +12,7 @@ const server = http.createServer(function(req, res) {
     util.log("Received a request:", id);
 
     req.on('aborted', () => {
-	req.aborted = true;
+        req.aborted = true;
         util.log(id, 'is aborted');
     });
 
@@ -31,12 +31,13 @@ const server = http.createServer(function(req, res) {
 	    if (!req.aborted) {
 	        wait += 2;
 	        util.log(id, 'wait', wait, 'seconds ...');
-	    setTimeout(() => {
-		if (!req.aborted) {
-	            res.write(msg + '\n');
-		}
-		resolve();
-            }, wait * 1000);
+
+	        setTimeout(() => {
+		    if (!req.aborted) {
+	                res.write(msg + '\n');
+		    }
+		    resolve();
+                }, wait * 1000);
 	    } else {
 		resolve();
             }
@@ -53,7 +54,9 @@ const server = http.createServer(function(req, res) {
 });
 
 // http timeout 默认是 2 分钟
-// server.setTimeout(10 * 1000);
+// 在 res.write 调用前 timeout 会触发 ECONNRESET
+// 在 res.write 调用后再 timeout 则不会触发 ECONNRESET, 而是会调用 end 结束通信(node8 下的表现）
+server.setTimeout(1.5 * 1000); // 设置为 3 秒则不会触发 ECONNRESET
 
 server.listen(3001, function() {
     util.log("server listening at port 3001......");
